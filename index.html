@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深层人格全息测试</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme:{
+    extend:{
+      colors:{
+        dark:'#080a12',
+        card:'#141826',
+        card2:'#1c2235',
+        accent:'#b89eff',
+        accent2:'#7251dd',
+        textSoft:'#b4b9d0'
+      },
+      fontFamily:{
+        sans:['system-ui','sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+*{
+  -webkit-tap-highlight-color: transparent;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform: translateY(14px)}
+  to{opacity:1;transform: translateY(0)}
+}
+@keyframes countUp{
+  0%{opacity:0;transform:scale(0.85)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes pulseSoft{
+  0%,100%{opacity:0.8}
+  50%{opacity:1}
+}
+.fade-in{
+  animation: fadeIn 0.55s ease-out forwards;
+}
+.count-animate{
+  animation: countUp 0.9s ease-out forwards;
+}
+.pulse-soft{
+  animation: pulseSoft 2.2s infinite;
+}
+.option-btn{
+  transition: all 0.25s ease;
+}
+.option-btn:active{
+  transform: scale(0.97);
+}
+.progress-bar{
+  transition: width 0.4s ease;
+}
+</style>
+</head>
+<body class="bg-dark text-white min-h-screen">
+<div class="max-w-xl mx-auto px-5 py-10">
+
+  <!-- 欢迎首页 -->
+  <div id="startBox" class="text-center fade-in">
+    <div class="mb-10">
+      <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-accent to-accent2 flex items-center justify-center mb-6 pulse-soft">
+        <i class="fa fa-brain text-2xl"></i>
+      </div>
+      <h2 class="text-[28px] font-medium mb-3">深层人格全息测试</h2>
+      <p class="text-textSoft leading-relaxed">一共32道选择题<br>静下心选择第一直觉答案，解锁你的内在人格画像</p>
+      <div class="mt-6 text-xs text-textSoft opacity-70">⏱ 预计用时 3–5 分钟</div>
+    </div>
+    <button onclick="startQuiz()" class="px-10 py-3.5 rounded-full bg-gradient-to-r from-accent to-accent2 hover:opacity-90 transition shadow-lg shadow-[#7251dd40]">
+      开始深度测试
+    </button>
+  </div>
+
+  <!-- 答题区域 -->
+  <div id="quizBox" class="hidden fade-in">
+    <div class="mb-4">
+      <div class="flex justify-between text-sm text-textSoft mb-2">
+        <span id="stepText">第 1 / 32 题</span>
+        <span id="percentText">0%</span>
+      </div>
+      <div class="w-full h-1.5 bg-card2 rounded-full overflow-hidden">
+        <div id="progressBar" class="progress-bar h-full bg-gradient-to-r from-accent to-accent2 w-0 rounded-full"></div>
+      </div>
+    </div>
+    <div class="bg-card rounded-2xl p-6 my-6">
+      <h3 id="questionText" class="text-xl leading-relaxed"></h3>
+    </div>
+    <div id="optionBox" class="space-y-3"></div>
+  </div>
+
+  <!-- 结果页 -->
+  <div id="resultBox" class="hidden fade-in text-center">
+    <div class="bg-card rounded-2xl p-8">
+      <p class="text-textSoft mb-2">你的人格综合得分</p>
+      <div id="scoreNum" class="text-6xl font-bold bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent my-4 count-animate">0</div>
+      <div id="resultTitle" class="text-xl font-medium my-4"></div>
+      <div id="resultTagBox" class="flex flex-wrap justify-center gap-2 my-4"></div>
+      <div id="resultDesc" class="text-textSoft leading-relaxed text-left"></div>
+      <div class="mt-6 bg-card2 rounded-xl p-4 text-left">
+        <p class="text-sm text-accent mb-1">✨ 专属提示</p>
+        <p id="tipText" class="text-sm text-textSoft"></p>
+      </div>
+      <div class="mt-8 text-xs text-textSoft opacity-60">本内容为趣味心理测试，仅供娱乐参考，不属于专业心理诊断</div>
+      <div class="flex justify-center mt-6">
+        <button onclick="restart()" class="px-6 py-2.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition">重新测试</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== 32道题目 ==========
+const questions = [
+  {q:"休息的时候，你更愿意？",opt:[{t:"一个人安静待着",s:4},{t:"和熟人相伴",s:1},{t:"看当下心情",s:2},{t:"安排丰富活动",s:3}]},
+  {q:"朋友向你倾诉难过，你一般？",opt:[{t:"共情跟着难过",s:4},{t:"帮他分析办法",s:1},{t:"适度安慰守住边界",s:3},{t:"不太会安慰人",s:2}]},
+  {q:"做重大决定优先相信？",opt:[{t:"内心直觉感受",s:4},{t:"利弊数据现实",s:1},{t:"感受现实一起考虑",s:3},{t:"拖延观望等等看",s:2}]},
+  {q:"计划突然被打乱，你会？",opt:[{t:"烦躁很久缓不过来",s:4},{t:"顺其自然灵活调整",s:1},{t:"短暂不舒服然后接受",s:2},{t:"尽力拉回原定节奏",s:3}]},
+  {q:"想起过去遗憾，你常常？",opt:[{t:"反复回想内耗",s:4},{t:"翻篇向前看",s:1},{t:"记住但不困住自己",s:2},{t:"当成成长一课",s:3}]},
+  {q:"人群里你更偏向？",opt:[{t:"安静观察者",s:4},{t:"活跃气氛者",s:1},{t:"温柔倾听者",s:3},{t:"只在小圈子放松",s:2}]},
+  {q:"收到批评，第一反应？",opt:[{t:"心里难受很久",s:4},{t:"理性判断对错",s:1},{t:"先冷静消化",s:3},{t:"下意识想反驳",s:2}]},
+  {q:"空闲刷手机，你更喜欢？",opt:[{t:"文艺、情绪类内容",s:4},{t:"干货、资讯、实用内容",s:1},{t:"搞笑轻松短视频",s:2},{t:"看深度思考类",s:3}]},
+  {q:"对待承诺，你？",opt:[{t:"答应了就一定做到",s:4},{t:"量力而行不轻易许诺",s:1},{t:"大部分时候靠谱",s:3},{t:"偶尔会忘记",s:2}]},
+  {q:"陌生社交场合，你？",opt:[{t:"紧张想早点离开",s:4},{t:"从容主动搭话",s:1},{t:"礼貌但保持距离",s:3},{t:"熟人带动才放开",s:2}]},
+  {q:"看待别人对你的评价？",opt:[{t:"很容易放在心上",s:4},{t:"别人看法不重要",s:1},{t:"有选择地听取",s:3},{t:"嘴上不在意心里在意",s:2}]},
+  {q:"遇到争执，你习惯？",opt:[{t:"不想吵架容易妥协",s:4},{t:"理性讲道理争对错",s:1},{t:"先冷静再沟通",s:3},{t:"直接回避躲开",s:2}]},
+  {q:"你更喜欢哪种节奏？",opt:[{t:"慢节奏，慢慢感受生活",s:4},{t:"快节奏充实高效",s:1},{t:"快慢交替",s:3},{t:"能躺就躺",s:2}]},
+  {q:"看到感人故事，你？",opt:[{t:"很容易掉眼泪",s:4},{t:"感动但情绪稳定",s:1},{t:"分故事类型",s:3},{t:"很难共情",s:2}]},
+  {q:"买东西的时候？",opt:[{t:"凭喜欢和感觉",s:4},{t:"对比性价比",s:1},{t:"喜欢同时看预算",s:3},{t:"冲动之后后悔",s:2}]},
+  {q:"想象未来，你更多是？",opt:[{t:"幻想很多画面",s:4},{t:"规划现实目标",s:1},{t:"有期待也清醒",s:3},{t:"很少想未来",s:2}]},
+  {q:"别人拜托你帮忙？",opt:[{t:"很难拒绝别人",s:4},{t:"合适才答应",s:1},{t:"权衡之后决定",s:3},{t:"直接婉拒",s:2}]},
+  {q:"环境嘈杂的时候？",opt:[{t:"烦躁注意力涣散",s:4},{t:"不受影响",s:1},{t:"勉强可以适应",s:3},{t:"会主动换环境",s:2}]},
+  {q:"你更相信？",opt:[{t:"缘分和宿命感",s:4},{t:"事在人为努力",s:1},{t:"两者都有",s:3},{t:"随机随缘",s:2}]},
+  {q:"做错事情之后？",opt:[{t:"反复自责很久",s:4},{t:"复盘改正放下",s:1},{t:"会内疚但会调整",s:3},{t:"想办法掩盖",s:2}]},
+  {q:"新的任务来了？",opt:[{t:"担心做不好",s:4},{t:"立刻动手规划",s:1},{t:"先了解再行动",s:3},{t:"习惯性拖延",s:2}]},
+  {q:"和朋友产生误会？",opt:[{t:"心里胡思乱想",s:4},{t:"直接沟通说清楚",s:1},{t:"等合适时机聊",s:3},{t:"顺其自然不解释",s:2}]},
+  {q:"审美偏好偏向？",opt:[{t:"氛围感、文艺温柔",s:4},{t:"简约高级实用",s:1},{t:"小众独特风格",s:3},{t:"热闹鲜艳",s:2}]},
+  {q:"压力大的时候，你会？",opt:[{t:"独自消化情绪",s:4},{t:"找办法解决问题",s:1},{t:"找人倾诉释放",s:3},{t:"摆烂逃避",s:2}]},
+  {q:"你觉得自己？",opt:[{t:"内心世界丰富细腻",s:4},{t:"务实理性现实主义",s:1},{t:"感性理性均衡",s:3},{t:"简单乐天派",s:2}]},
+  {q:"看到弱者苦难，你？",opt:[{t:"心生怜悯久久难受",s:4},{t:"知道现实无力改变",s:1},{t:"力所能及帮一点",s:3},{t:"刷过去不多想",s:2}]},
+  {q:"对待新鲜感？",opt:[{t:"迷恋浪漫新鲜感",s:4},{t:"偏爱长久稳定",s:1},{t:"两者都需要",s:3},{t:"容易厌倦",s:2}]},
+  {q:"睡前躺在床上？",opt:[{t:"思绪万千胡思乱想",s:4},{t:"放空很快入睡",s:1},{t:"偶尔会复盘一天",s:3},{t:"刷手机到困",s:2}]},
+  {q:"你怎么看待温柔？",opt:[{t:"温柔是骨子里的底色",s:4},{t:"温柔是一种选择",s:1},{t:"温柔要有锋芒",s:3},{t:"温柔容易吃亏",s:2}]},
+  {q:"一件事结果不好，你？",opt:[{t:"归因到自己身上",s:4},{t:"客观看待多方原因",s:1},{t:"分情况判断",s:3},{t:"容易怪外界",s:2}]},
+  {q:"你更喜欢收到？",opt:[{t:"走心情绪价值",s:4},{t:"实际帮助建议",s:1},{t:"陪伴和倾听",s:3},{t:"礼物物质",s:2}]},
+  {q:"长期相处，最吸引你的特质？",opt:[{t:"共情细腻懂你",s:4},{t:"靠谱稳重有担当",s:1},{t:"松弛有趣真诚",s:3},{t:"强大优秀耀眼",s:2}]},
+];
+
+// 分数结果库（总分区间：最低32，最高128分）
+const resultMap = [
+  {min:32,max:56,title:"清醒务实者",tags:["理性","自持","目标感"],desc:"你是很落地的现实主义者，不容易被情绪裹挟。习惯权衡利弊，遇事优先解决问题。你冷静克制，很少内耗，清楚自己想要什么。但偶尔可以允许自己放下逻辑，感受情绪。",tip:"不用时刻紧绷，偶尔感性一下不是软弱。"},
+  {min:57,max:80,title:"平衡通透者",tags:["分寸感","共情力","清醒"],desc:"你是很难得的平衡型人格。感性和理性共存，既能共情别人，又守住自我边界。待人温和有底线，遇事冷静有思考，不极端不偏执。身边人很愿意信任你，你懂得好好照顾自己。",tip:"你本身就很完整，不需要依靠别人认可证明自己。"},
+  {min:81,max:104,title:"高敏共情者",tags:["细腻","心软","感知力强"],desc:"你的感知力远超普通人，能捕捉别人忽略的情绪信号。温柔善良，习惯性体谅他人，很容易共情、心软。高敏感是你的天赋，但也容易把外界情绪全部背负，陷入持续内耗。",tip:"善良要带边界，你的感受同样值得优先照顾。"},
+  {min:105,max:128,title:"内省浪漫者",tags:["精神富足","浪漫","向内探索"],desc:"你活在辽阔丰盈的精神世界里。心思细腻浪漫，爱思考、爱感受，对世界有独特理解。你容易反复咀嚼情绪、回忆过往，常常独自内耗。你的灵魂独一无二，学会和自己和解，就是一生课题。",tip:"不必强迫自己合群，懂你的人自然看见你的珍贵。"},
+];
+
+let current = 0;
+let score = 0;
+const total = questions.length;
+
+function startQuiz(){
+  document.getElementById('startBox').classList.add('hidden');
+  document.getElementById('quizBox').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item = questions[current];
+  const pct = Math.round(((current)/total)*100);
+  document.getElementById('stepText').innerText = `第 ${current+1} / ${total} 题`;
+  document.getElementById('percentText').innerText = pct+"%";
+  document.getElementById('progressBar').style.width = pct+"%";
+  document.getElementById('questionText').innerText = item.q;
+  const optBox = document.getElementById('optionBox');
+  optBox.innerHTML = '';
+  item.opt.forEach(o=>{
+    const btn = document.createElement('button');
+    btn.className = "option-btn w-full text-left p-4 rounded-xl bg-card2 hover:bg-[#252c44]";
+    btn.innerText = o.t;
+    btn.onclick = ()=>{
+      score += o.s;
+      current++;
+      if(current >= total){
+        showResult();
+      }else{
+        renderQuestion();
+      }
+    }
+    optBox.appendChild(btn);
+  })
+}
+
+function showResult(){
+  document.getElementById('quizBox').classList.add('hidden');
+  document.getElementById('resultBox').classList.remove('hidden');
+  let s = 0;
+  const target = score;
+  const dom = document.getElementById('scoreNum');
+  const timer = setInterval(()=>{
+    s++;
+    dom.innerText = s;
+    if(s >= target){
+      clearInterval(timer);
+      const res = resultMap.find(r=> target >= r.min && target <= r.max);
+      document.getElementById('resultTitle').innerText = res.title;
+      document.getElementById('resultDesc').innerText = res.desc;
+      document.getElementById('tipText').innerText = res.tip;
+      const tagBox = document.getElementById('resultTagBox');
+      tagBox.innerHTML = '';
+      res.tags.forEach(t=>{
+        const span = document.createElement('span');
+        span.className = "px-3 py-1 bg-card2 rounded-full text-sm text-accent";
+        span.innerText = t;
+        tagBox.appendChild(span);
+      })
+    }
+  },40);
+}
+
+function restart(){
+  current = 0;
+  score = 0;
+  document.getElementById('resultBox').classList.add('hidden');
+  document.getElementById('startBox').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
